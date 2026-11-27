@@ -1,0 +1,49 @@
+name: Build Dayflow APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-android-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install dependencies & create Android project
+        run: |
+          npm install
+          npx cap add android
+
+      - name: Apply Dayflow launcher icons & theme
+        run: |
+          cp -r android-res/mipmap-* android/app/src/main/res/
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26 || true
+
+      - name: Sync web assets
+        run: npx cap sync android
+
+      - name: Build Debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload Dayflow APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Dayflow-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
