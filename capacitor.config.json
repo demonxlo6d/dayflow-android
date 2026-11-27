@@ -1,0 +1,8 @@
+{
+  "appId": "com.dayflow.app",
+  "appName": "Dayflow",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#080d22"
+  }
+}
